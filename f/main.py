@@ -15,9 +15,7 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-
-
-def load_image(name, color_key=None):
+def load_image(name, color_key=None, size=(50, 50)):
     fullname = os.path.join('data', name)
     image = pygame.image.load(fullname).convert()
 
@@ -28,7 +26,7 @@ def load_image(name, color_key=None):
         image = pygame.transform.scale(image, (40, 40))
     else:
         image = image.convert_alpha()
-        image = pygame.transform.scale(image, (50, 50))
+        image = pygame.transform.scale(image, size)
     return image
 
 
@@ -130,9 +128,9 @@ def terminate():
     pygame.quit()
     sys.exit()
 
-def start_screen():
 
-    fon = pygame.transform.scale(load_image('fon.jpg'), (500, 500))
+def start_screen():
+    fon = load_image('fon.jpg', size=(500, 500))
     screen.blit(fon, (0, 0))
     running = True
     while running:
@@ -144,6 +142,7 @@ def start_screen():
                 running = False
         pygame.display.flip()
         clock.tick(50)
+
 
 start_screen()
 running = True
