@@ -58,8 +58,11 @@ class Player(pygame.sprite.Sprite):
         self.pos_x, self.pos_y = pos_x, pos_y
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * self.pos_x + 15, tile_height * self.pos_y + 5)
 
+    def update(self):
+        self.rect = self.image.get_rect().move(
+            tile_width * self.pos_x + 15, tile_height * self.pos_y + 5)
 
 
 # основной персонаж
@@ -88,7 +91,6 @@ def generate_level(level):
 
 
 def up(k):
-
     map = [[j for j in i] for i in load_level('map.txt')]
     if k == 1:
         if player.pos_y != 0:
@@ -97,7 +99,7 @@ def up(k):
                 map[player.pos_y][player.pos_x] = '.'
                 player.pos_y -= 1
     elif k == 2:
-        if player.pos_y != 9:
+        if player.pos_y != 10:
             if map[player.pos_y + 1][player.pos_x] != '#':
                 map[player.pos_y + 1][player.pos_x] = '@'
                 map[player.pos_y][player.pos_x] = '.'
@@ -109,16 +111,14 @@ def up(k):
                 map[player.pos_y][player.pos_x] = '.'
                 player.pos_x -= 1
     elif k == 4:
-        if player.pos_x != 9:
+        if player.pos_x != 10:
             if map[player.pos_y][player.pos_x + 1] != '#':
                 map[player.pos_y][player.pos_x + 1] = '@'
                 map[player.pos_y][player.pos_x] = '.'
                 player.pos_x += 1
-    map = [''.join(i) for i in map]
-    print('\n'.join(map))
+    print(player.pos_x, player.pos_y)
     with open('data/map.txt', 'w') as f:
-        f.write('\n'.join(map))
-
+        f.write('\n'.join(''.join(i) for i in map))
 
 
 player, level_x, level_y = generate_level(load_level('map.txt'))
@@ -159,7 +159,6 @@ while running:
                 up(3)
             if event.key == pygame.K_RIGHT:
                 up(4)
-    player, level_x, level_y = generate_level(load_level('map.txt'))
     screen.fill('white')
     all_sprites.draw(screen)
     all_sprites.update()
