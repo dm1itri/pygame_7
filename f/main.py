@@ -2,7 +2,9 @@ import pygame
 import os
 import sys
 
+
 def load_level(filename):
+    global MAP
     filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
@@ -10,9 +12,9 @@ def load_level(filename):
 
     # и подсчитываем максимальную длину    
     max_width = max(map(len, level_map))
-
+    MAP = list(map(lambda x: x.ljust(max_width, '.'), level_map))
     # дополняем каждую строку пустыми клетками ('.')    
-    return list(map(lambda x: x.ljust(max_width, '.'), level_map))
+    return MAP
 
 
 def load_image(name, color_key=None, size=(50, 50)):
@@ -90,38 +92,36 @@ def generate_level(level):
     return new_player, x, y
 
 
-def up(k):
-    map = [[j for j in i] for i in load_level('map.txt')]
+def up(k, MAP):
     if k == 1:
         if player.pos_y != 0:
-            if map[player.pos_y - 1][player.pos_x] != '#':
-                map[player.pos_y - 1][player.pos_x] = '@'
-                map[player.pos_y][player.pos_x] = '.'
+            if MAP[player.pos_y - 1][player.pos_x] != '#':
+                MAP[player.pos_y - 1][player.pos_x] = '@'
+                MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_y -= 1
     elif k == 2:
         if player.pos_y != 10:
-            if map[player.pos_y + 1][player.pos_x] != '#':
-                map[player.pos_y + 1][player.pos_x] = '@'
-                map[player.pos_y][player.pos_x] = '.'
+            if MAP[player.pos_y + 1][player.pos_x] != '#':
+                MAP[player.pos_y + 1][player.pos_x] = '@'
+                MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_y += 1
     elif k == 3:
         if player.pos_x != 0:
-            if map[player.pos_y][player.pos_x - 1] != '#':
-                map[player.pos_y][player.pos_x - 1] = '@'
-                map[player.pos_y][player.pos_x] = '.'
+            if MAP[player.pos_y][player.pos_x - 1] != '#':
+                MAP[player.pos_y][player.pos_x - 1] = '@'
+                MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x -= 1
     elif k == 4:
         if player.pos_x != 10:
-            if map[player.pos_y][player.pos_x + 1] != '#':
-                map[player.pos_y][player.pos_x + 1] = '@'
-                map[player.pos_y][player.pos_x] = '.'
+            if MAP[player.pos_y][player.pos_x + 1] != '#':
+                MAP[player.pos_y][player.pos_x + 1] = '@'
+                MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x += 1
     print(player.pos_x, player.pos_y)
-    with open('data/map.txt', 'w') as f:
-        f.write('\n'.join(''.join(i) for i in map))
-
+    return MAP
 
 player, level_x, level_y = generate_level(load_level('map.txt'))
+MAP = [[j for j in i] for i in MAP]
 
 
 def terminate():
@@ -152,13 +152,13 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                up(1)
+                MAP = up(1, MAP)
             if event.key == pygame.K_DOWN:
-                up(2)
+                MAP = up(2, MAP)
             if event.key == pygame.K_LEFT:
-                up(3)
+                MAP = up(3, MAP)
             if event.key == pygame.K_RIGHT:
-                up(4)
+                MAP = up(4, MAP)
     screen.fill('white')
     all_sprites.draw(screen)
     all_sprites.update()
