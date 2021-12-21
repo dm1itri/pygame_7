@@ -4,7 +4,6 @@ import sys
 
 
 def load_level(filename):
-    global MAP
     filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
@@ -12,9 +11,8 @@ def load_level(filename):
 
     # и подсчитываем максимальную длину    
     max_width = max(map(len, level_map))
-    MAP = list(map(lambda x: x.ljust(max_width, '.'), level_map))
     # дополняем каждую строку пустыми клетками ('.')    
-    return MAP
+    return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
 def load_image(name, color_key=None, size=(50, 50)):
@@ -32,18 +30,7 @@ def load_image(name, color_key=None, size=(50, 50)):
     return image
 
 
-size = width, height = 500, 500
-screen = pygame.display.set_mode(size)
-pygame.mouse.set_visible(False)
-pygame.display.set_caption('Герой двигается!')
-clock = pygame.time.Clock()
-tile_images = {
-    'wall': load_image('box.png'),
-    'empty': load_image('grass.png')
-}
-player_image = load_image('mar.png', -1)
 
-tile_width = tile_height = 50
 
 
 class Tile(pygame.sprite.Sprite):
@@ -67,14 +54,6 @@ class Player(pygame.sprite.Sprite):
             tile_width * self.pos_x + 15, tile_height * self.pos_y + 5)
 
 
-# основной персонаж
-player = None
-
-
-# группы спрайтов
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
 
 
 def generate_level(level):
@@ -96,32 +75,29 @@ def up(k, MAP):
     if k == 1:
         if player.pos_y != 0:
             if MAP[player.pos_y - 1][player.pos_x] != '#':
-                MAP[player.pos_y - 1][player.pos_x] = '@'
+                #MAP[player.pos_y - 1][player.pos_x] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_y -= 1
     elif k == 2:
         if player.pos_y != 10:
             if MAP[player.pos_y + 1][player.pos_x] != '#':
-                MAP[player.pos_y + 1][player.pos_x] = '@'
+                #MAP[player.pos_y + 1][player.pos_x] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_y += 1
     elif k == 3:
         if player.pos_x != 0:
             if MAP[player.pos_y][player.pos_x - 1] != '#':
-                MAP[player.pos_y][player.pos_x - 1] = '@'
+                #MAP[player.pos_y][player.pos_x - 1] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x -= 1
     elif k == 4:
         if player.pos_x != 10:
             if MAP[player.pos_y][player.pos_x + 1] != '#':
-                MAP[player.pos_y][player.pos_x + 1] = '@'
+                #MAP[player.pos_y][player.pos_x + 1] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x += 1
-    print(player.pos_x, player.pos_y)
+    print(*MAP, sep='\n', end='\n\n')
     return MAP
-
-player, level_x, level_y = generate_level(load_level('map.txt'))
-MAP = [[j for j in i] for i in MAP]
 
 
 def terminate():
@@ -130,8 +106,9 @@ def terminate():
 
 
 def start_screen():
-    fon = load_image('fon.jpg', size=(500, 500))
+    fon = load_image('fon.jpg', size=size)
     screen.blit(fon, (0, 0))
+    pygame.display.flip()
     running = True
     while running:
         for event in pygame.event.get():
@@ -140,9 +117,29 @@ def start_screen():
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
                 running = False
-        pygame.display.flip()
-        clock.tick(50)
 
+
+size = width, height = 550, 550
+screen = pygame.display.set_mode(size)
+pygame.mouse.set_visible(False)
+pygame.display.set_caption('Герой двигается!')
+clock = pygame.time.Clock()
+tile_images = {
+    'wall': load_image('box.png'),
+    'empty': load_image('grass.png')
+}
+player_image = load_image('mar.png', -1)
+tile_width = tile_height = 50
+
+# основной персонаж
+player = None
+# группы спрайтов
+all_sprites = pygame.sprite.Group()
+tiles_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+
+player, level_x, level_y = generate_level(MAP := load_level('map.txt'))
+MAP = [[j for j in i] for i in MAP]
 
 start_screen()
 running = True
@@ -159,7 +156,7 @@ while running:
                 MAP = up(3, MAP)
             if event.key == pygame.K_RIGHT:
                 MAP = up(4, MAP)
-    screen.fill('white')
-    all_sprites.draw(screen)
-    all_sprites.update()
-    pygame.display.flip()
+        # screen.fill('white')
+        all_sprites.draw(screen)
+        all_sprites.update()
+        pygame.display.flip()
