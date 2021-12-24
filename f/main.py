@@ -30,9 +30,6 @@ def load_image(name, color_key=None, size=(50, 50)):
     return image
 
 
-
-
-
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
@@ -52,8 +49,6 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.rect = self.image.get_rect().move(
             tile_width * self.pos_x + 15, tile_height * self.pos_y + 5)
-
-
 
 
 def generate_level(level):
@@ -79,7 +74,7 @@ def up(k, MAP):
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_y -= 1
     elif k == 2:
-        if player.pos_y != 10:
+        if player.pos_y < 10:
             if MAP[player.pos_y + 1][player.pos_x] != '#':
                 #MAP[player.pos_y + 1][player.pos_x] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
@@ -91,12 +86,12 @@ def up(k, MAP):
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x -= 1
     elif k == 4:
-        if player.pos_x != 10:
+        if player.pos_x < 10:
             if MAP[player.pos_y][player.pos_x + 1] != '#':
                 #MAP[player.pos_y][player.pos_x + 1] = '@'
                 MAP[player.pos_y][player.pos_x] = '.'
                 player.pos_x += 1
-    print(*MAP, sep='\n', end='\n\n')
+    #print(*MAP, sep='\n', end='\n\n')
     return MAP
 
 
@@ -106,17 +101,26 @@ def terminate():
 
 
 def start_screen():
+    pygame.init()
+    intro_text = 'Введите название уровня через консоль'
+
     fon = load_image('fon.jpg', size=size)
     screen.blit(fon, (0, 0))
+    #pygame.display.flip()
+
+    font = pygame.font.Font(None, 30)
+    text = font.render(intro_text, True, (0, 0, 0))
+
+    screen.blit(text, (50, 20))
     pygame.display.flip()
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                running = False
+    #running = True
+    #while running:
+        #for event in pygame.event.get():
+            #if event.type == pygame.QUIT:
+                #terminate()
+            #elif event.type == pygame.KEYDOWN or \
+                    #event.type == pygame.MOUSEBUTTONDOWN:
+    return load_level(input())
 
 
 size = width, height = 550, 550
@@ -138,25 +142,31 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
-player, level_x, level_y = generate_level(MAP := load_level('map.txt'))
-MAP = [[j for j in i] for i in MAP]
 
-start_screen()
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                MAP = up(1, MAP)
-            if event.key == pygame.K_DOWN:
-                MAP = up(2, MAP)
-            if event.key == pygame.K_LEFT:
-                MAP = up(3, MAP)
-            if event.key == pygame.K_RIGHT:
-                MAP = up(4, MAP)
-        # screen.fill('white')
-        all_sprites.draw(screen)
-        all_sprites.update()
-        pygame.display.flip()
+try:
+    player, level_x, level_y = generate_level(MAP := start_screen())
+    MAP = [[j for j in i] for i in MAP]
+    print(2)
+except Exception as e:
+    print(e)
+
+else:
+    print(1)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    MAP = up(1, MAP)
+                if event.key == pygame.K_DOWN:
+                    MAP = up(2, MAP)
+                if event.key == pygame.K_LEFT:
+                    MAP = up(3, MAP)
+                if event.key == pygame.K_RIGHT:
+                    MAP = up(4, MAP)
+            # screen.fill('white')
+            all_sprites.draw(screen)
+            all_sprites.update()
+            pygame.display.flip()
